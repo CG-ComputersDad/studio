@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { PlateProvider } from "@/context/PlateContext";
 import { RecipeProvider } from "@/context/RecipeContext";
+import { FoodProvider } from "@/context/FoodContext"; // Import FoodProvider
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,17 +25,19 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="min-h-screen flex flex-col bg-background text-foreground">
-        <PlateProvider>
-          <RecipeProvider>
-            <Header />
-            <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
-              {children}
-            </main>
-            <Footer />
-            <PlateButton />
-            <PlateSheet />
-          </RecipeProvider>
-        </PlateProvider>
+        <FoodProvider> {/* Add FoodProvider here */}
+          <PlateProvider>
+            <RecipeProvider>
+              <Header />
+              <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+                {children}
+              </main>
+              <Footer />
+              <PlateButton />
+              <PlateSheet />
+            </RecipeProvider>
+          </PlateProvider>
+        </FoodProvider>
         <Toaster />
       </body>
     </html>

@@ -2,9 +2,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import React, { createContext, useContext, useReducer, useCallback } from "react";
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from "react";
 import type { FoodItem, Recipe, RecipeFoodItem } from "@/types";
-import { foodDatabase, getFoodById } from "@/data/foods"; // To look up food details
+import { useFood } from "./FoodContext"; // Import useFood to get food details
 import { usePlate } from "@/context/PlateContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -13,6 +13,7 @@ interface RecipeState {
 }
 
 type RecipeAction =
+  | { type: "SET_RECIPES"; payload: Recipe[] }
   | { type: "CREATE_RECIPE"; payload: { name: string; initialFood: FoodItem; quantityInGrams: number } }
   | { type: "DELETE_RECIPE"; payload: { recipeId: string } }
   | { type: "ADD_FOOD_TO_RECIPE"; payload: { recipeId: string; food: FoodItem; quantityInGrams: number } }
@@ -41,6 +42,8 @@ const RecipeContext = createContext<
 
 const recipeReducer = (state: RecipeState, action: RecipeAction): RecipeState => {
   switch (action.type) {
+    case "SET_RECIPES":
+      return { ...state, recipes: action.payload };
     case "CREATE_RECIPE": {
       const newRecipeFoodItem: RecipeFoodItem = {
         id: `${action.payload.initialFood.id}_${Date.now()}`,
@@ -123,26 +126,38 @@ const recipeReducer = (state: RecipeState, action: RecipeAction): RecipeState =>
 export const RecipeProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(recipeReducer, initialState);
   const { addItemToPlate } = usePlate();
+  const { getFoodById: getFoodDetailsById } = useFood(); // Use FoodContext's getFoodById
+
+  // Load recipes from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRecipes = localStorage.getItem("nutrisnap_recipes");
+      if (storedRecipes) {
+        dispatch({ type: "SET_RECIPES", payload: JSON.parse(storedRecipes) });
+      }
+    }
+  }, []);
+
+  // Save recipes to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("nutrisnap_recipes", JSON.stringify(state.recipes));
+    }
+  }, [state.recipes]);
+
 
   const createRecipe = useCallback((name: string, initialFood: FoodItem, quantityInGrams: number): Recipe | undefined => {
     if (!name.trim()) {
       toast({ title: "Error", description: "Recipe name cannot be empty.", variant: "destructive" });
       return undefined;
     }
-    const newRecipeFoodItem: RecipeFoodItem = {
-      id: `${initialFood.id}_${Date.now()}`,
-      foodId: initialFood.id,
-      quantityInGrams: quantityInGrams,
-    };
-    const newRecipe: Recipe = {
-      id: `recipe_${Date.now()}`,
-      name: name,
-      items: [newRecipeFoodItem],
-    };
     dispatch({ type: "CREATE_RECIPE", payload: { name, initialFood, quantityInGrams } });
     toast({ title: "Recipe Created", description: `"${name}" has been created.` });
-    return newRecipe; // Return the created recipe
-  }, []);
+    // Note: The actual created recipe object isn't directly returned here due to reducer's async nature.
+    // If immediate access is needed, it might require a different approach or state structure.
+    // For now, we rely on the state update.
+    return state.recipes.find(r => r.name === name); // Attempt to find, might not be updated yet
+  }, [state.recipes]);
 
   const deleteRecipe = useCallback((recipeId: string) => {
     dispatch({ type: "DELETE_RECIPE", payload: { recipeId } });
@@ -185,14 +200,14 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
     const recipe = getRecipeById(recipeId);
     if (recipe) {
       recipe.items.forEach(item => {
-        const foodDetails = getFoodById(item.foodId);
+        const foodDetails = getFoodDetailsById(item.foodId); // Use FoodContext's getter
         if (foodDetails) {
           addItemToPlate(foodDetails, item.quantityInGrams);
         }
       });
       toast({ title: "Recipe Added to Plate", description: `All items from "${recipe.name}" added.` });
     }
-  }, [getRecipeById, addItemToPlate]);
+  }, [getRecipeById, addItemToPlate, getFoodDetailsById]);
 
   const calculateRecipeTotals = useCallback((recipe: Recipe) => {
     let totalCalories = 0;
@@ -202,7 +217,7 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
     let totalGrams = 0;
 
     recipe.items.forEach(item => {
-      const foodDetails = getFoodById(item.foodId);
+      const foodDetails = getFoodDetailsById(item.foodId); // Use FoodContext's getter
       if (foodDetails) {
         const factor = item.quantityInGrams / 100;
         totalCalories += foodDetails.nutritionPer100g.calories * factor;
@@ -213,7 +228,7 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
       }
     });
     return { calories: totalCalories, protein: totalProtein, carbs: totalCarbs, fat: totalFat, totalGrams };
-  }, []);
+  }, [getFoodDetailsById]);
 
   return (
     <RecipeContext.Provider

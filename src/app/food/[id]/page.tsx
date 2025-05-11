@@ -1,18 +1,18 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getFoodById } from "@/data/foods";
+import { useFood } from "@/context/FoodContext"; // Import useFood
 import { usePlate } from "@/context/PlateContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, PlusCircle, Flame, Beef, Wheat, Droplet, Bookmark } from "lucide-react";
+import { ArrowLeft, PlusCircle, Flame, Beef, Wheat, Droplet, Bookmark, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AddToRecipeDialog } from "@/components/recipe/AddToRecipeDialog"; // Import the new dialog
+import { AddToRecipeDialog } from "@/components/recipe/AddToRecipeDialog";
 import type { FoodItem } from "@/types";
 
 
@@ -21,7 +21,8 @@ interface FoodDetailPageProps {
 }
 
 export default function FoodDetailPage({ params }: FoodDetailPageProps) {
-  const food = getFoodById(params.id);
+  const { getFoodById } = useFood(); // Use context to get food
+  const food = getFoodById(params.id); // Fetch food using context
   const { addItemToPlate } = usePlate();
   const [quantity, setQuantity] = useState(100); // Default to 100g
   const [isAddToRecipeDialogOpen, setIsAddToRecipeDialogOpen] = useState(false);
@@ -72,11 +73,16 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
               style={{ objectFit: "cover" }}
               data-ai-hint={food.dataAiHint}
               priority
+              // For custom foods with placeholder images, we might want to handle onError or add a specific class
+              className={food.isCustom ? "grayscale" : ""}
             />
           </div>
           <div className="p-6 md:p-8 flex flex-col">
             <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-3xl font-bold text-primary">{food.name}</CardTitle>
+              <div className="flex items-center">
+                <CardTitle className="text-3xl font-bold text-primary">{food.name}</CardTitle>
+                {food.isCustom && <Sparkles className="ml-2 h-6 w-6 text-accent" title="Custom Food"/>}
+              </div>
               <CardDescription className="text-md text-muted-foreground">Category: {food.category}</CardDescription>
             </CardHeader>
 

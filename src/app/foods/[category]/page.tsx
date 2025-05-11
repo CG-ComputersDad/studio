@@ -1,8 +1,7 @@
-"use client"; 
-// Changed to client component to use usePathname or params if dynamic rendering is truly necessary from client side
-// For now, making it server component and passing params
 
-import { getFoodsByCategory } from "@/data/foods";
+"use client"; 
+
+import { useFood } from "@/context/FoodContext"; // Import useFood
 import type { Category as CategoryType } from "@/types";
 import { FoodCard } from "@/components/FoodCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,12 +13,12 @@ interface CategoryPageProps {
   params: { category: CategoryType };
 }
 
-// Helper to capitalize category name for display
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function CategoryPage({ params }: CategoryPageProps) {
+  const { getFoodsByCategory } = useFood(); // Use context
   const category = params.category;
-  const foods = getFoodsByCategory(category);
+  const foods = getFoodsByCategory(category); // Fetch foods using context
 
   if (!category || !["Sweet", "Vegetarian", "Meat"].includes(category)) {
     return (

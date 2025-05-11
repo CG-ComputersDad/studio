@@ -4,11 +4,11 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { FoodItem, RecipeFoodItem as RecipeFoodItemType } from "@/types";
-import { getFoodById } from "@/data/foods";
+import { useFood } from "@/context/FoodContext"; // Import useFood
 import { useRecipes } from "@/context/RecipeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Save, Edit3, XCircle } from "lucide-react"; // Added Save, Edit3, XCircle
+import { Trash2, Save, Edit3, XCircle, Sparkles } from "lucide-react";
 
 interface RecipeFoodListItemEditableProps {
   recipeId: string;
@@ -17,7 +17,8 @@ interface RecipeFoodListItemEditableProps {
 
 export function RecipeFoodListItemEditable({ recipeId, recipeFoodItem }: RecipeFoodListItemEditableProps) {
   const { updateFoodInRecipe, removeFoodFromRecipe } = useRecipes();
-  const foodDetails = getFoodById(recipeFoodItem.foodId);
+  const { getFoodById } = useFood(); // Use context
+  const foodDetails = getFoodById(recipeFoodItem.foodId); // Fetch using context
 
   const [quantity, setQuantity] = useState(recipeFoodItem.quantityInGrams.toString());
   const [isEditing, setIsEditing] = useState(false);
@@ -30,7 +31,7 @@ export function RecipeFoodListItemEditable({ recipeId, recipeFoodItem }: RecipeF
 
   if (!foodDetails) {
     return (
-      <div className="flex items-center justify-between p-3 border-b text-destructive">
+      <div className="flex items-center justify-between p-3 text-destructive">
         <span>Food item not found (ID: {recipeFoodItem.foodId})</span>
         <Button variant="ghost" size="icon" onClick={() => removeFoodFromRecipe(recipeId, recipeFoodItem.id)}>
           <Trash2 className="h-4 w-4" />
@@ -66,17 +67,20 @@ export function RecipeFoodListItemEditable({ recipeId, recipeFoodItem }: RecipeF
   };
 
   return (
-    <div className="flex items-start gap-3 p-3 border-b hover:bg-muted/50 transition-colors">
+    <div className="flex items-start gap-3 p-3 hover:bg-muted/50 transition-colors">
       <Image
         src={foodDetails.imageUrl}
         alt={foodDetails.name}
         width={50}
         height={50}
-        className="rounded-md object-cover"
+        className={`rounded-md object-cover ${foodDetails.isCustom ? "grayscale" : ""}`}
         data-ai-hint={foodDetails.dataAiHint}
       />
       <div className="flex-grow">
-        <h4 className="font-semibold text-sm">{foodDetails.name}</h4>
+        <h4 className="font-semibold text-sm flex items-center">
+          {foodDetails.name}
+          {foodDetails.isCustom && <Sparkles className="ml-1.5 h-3 w-3 text-accent" title="Custom Food"/>}
+        </h4>
         {isEditing ? (
           <div className="flex items-center gap-2 mt-1">
             <Input

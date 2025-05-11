@@ -3,8 +3,9 @@
 
 import React, { useState, useMemo } from "react";
 import { useRecipes } from "@/context/RecipeContext";
+import { useFood } from "@/context/FoodContext"; // Import useFood
 import type { FoodItem } from "@/types";
-import { foodDatabase } from "@/data/foods";
+// import { foodDatabase } from "@/data/foods"; // No longer directly used
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FoodSearch } from "@/components/FoodSearch"; // Re-use existing search
+import { FoodSearch } from "@/components/FoodSearch";
 
 interface AddFoodToExistingRecipeDialogProps {
   recipeId: string;
@@ -28,16 +29,19 @@ interface AddFoodToExistingRecipeDialogProps {
 
 export function AddFoodToExistingRecipeDialog({ recipeId, isOpen, onOpenChange }: AddFoodToExistingRecipeDialogProps) {
   const { addFoodToRecipe } = useRecipes();
+  const { getAllFoods } = useFood(); // Get all foods from context
+  const allAvailableFoods = getAllFoods();
+
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [quantity, setQuantity] = useState(100);
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredFoods = useMemo(() => {
-    if (!searchTerm) return foodDatabase.slice(0, 20); // Show some initial items or limit
-    return foodDatabase.filter((food) =>
+    if (!searchTerm) return allAvailableFoods.slice(0, 20); // Show some initial items or limit
+    return allAvailableFoods.filter((food) =>
       food.name.toLowerCase().includes(searchTerm.toLowerCase())
     ).slice(0,20); // Limit results for performance
-  }, [searchTerm]);
+  }, [searchTerm, allAvailableFoods]);
 
   const handleSubmit = () => {
     if (!selectedFood) {
@@ -76,6 +80,7 @@ export function AddFoodToExistingRecipeDialog({ recipeId, isOpen, onOpenChange }
                   onClick={() => setSelectedFood(food)}
                 >
                   {food.name} ({food.nutritionPer100g.calories} kcal/100g)
+                  {food.isCustom && <span className="ml-2 text-xs text-primary">(Custom)</span>}
                 </div>
               ))
             ) : (

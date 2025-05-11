@@ -8,9 +8,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Input } from "@/components/ui/input";
 import { usePlate } from "@/context/PlateContext";
 import type { FoodItem } from "@/types";
-import { PlusCircle, Flame, Utensils, Info, Bookmark } from "lucide-react";
+import { PlusCircle, Flame, Utensils, Info, Bookmark, Sparkles } from "lucide-react"; // Added Sparkles
 import React, { useState } from "react";
-import { AddToRecipeDialog } from "./recipe/AddToRecipeDialog"; // Import the new dialog
+import { AddToRecipeDialog } from "./recipe/AddToRecipeDialog";
 
 interface FoodCardProps {
   food: FoodItem;
@@ -30,35 +30,36 @@ export function FoodCard({ food }: FoodCardProps) {
   return (
     <>
       <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <Link href={`/food/${food.id}`} className="block">
+        <Link href={`/food/${food.id}`} className="block group">
           <div className="relative w-full h-48">
             <Image
               src={food.imageUrl}
               alt={food.name}
               fill
               style={{ objectFit: 'cover' }}
-              className="transition-transform duration-300 group-hover:scale-105"
+              className={`transition-transform duration-300 group-hover:scale-105 ${food.isCustom ? "grayscale" : ""}`}
               data-ai-hint={food.dataAiHint}
             />
           </div>
         </Link>
         <CardHeader className="pb-2">
-          <Link href={`/food/${food.id}`}>
+          <Link href={`/food/${food.id}`} className="flex items-center">
             <CardTitle className="text-lg hover:text-primary transition-colors">{food.name}</CardTitle>
+            {food.isCustom && <Sparkles className="ml-2 h-4 w-4 text-accent" title="Custom Food"/>}
           </Link>
           <CardDescription className="text-xs">Category: {food.category}</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <div className="flex items-center text-sm text-muted-foreground mb-1">
             <Flame className="w-4 h-4 mr-1 text-orange-500" />
-            <span>{food.nutritionPer100g.calories} kcal / 100g</span>
+            <span>{food.nutritionPer100g.calories.toFixed(0)} kcal / 100g</span>
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <Utensils className="w-4 h-4 mr-1 text-blue-500" />
             <span>
-              P: {food.nutritionPer100g.protein}g, 
-              C: {food.nutritionPer100g.carbs}g, 
-              F: {food.nutritionPer100g.fat}g (per 100g)
+              P: {food.nutritionPer100g.protein.toFixed(1)}g, 
+              C: {food.nutritionPer100g.carbs.toFixed(1)}g, 
+              F: {food.nutritionPer100g.fat.toFixed(1)}g (per 100g)
             </span>
           </div>
         </CardContent>

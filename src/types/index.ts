@@ -15,6 +15,7 @@ export interface FoodItem {
   imageUrl: string;
   dataAiHint: string; // For placeholder image search query
   nutritionPer100g: FoodNutrition;
+  isCustom?: boolean; // To identify user-added foods
 }
 
 export interface PlateItem {
@@ -33,4 +34,14 @@ export interface Recipe {
   id: string; // Unique ID for the recipe
   name: string;
   items: RecipeFoodItem[];
+}
+
+// FormData for adding custom food
+export interface CustomFoodFormData {
+  name: string;
+  category: Exclude<Category, "All">; // "All" is not a valid category for a food item
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
