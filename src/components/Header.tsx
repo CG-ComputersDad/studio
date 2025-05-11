@@ -1,12 +1,14 @@
+
 "use client";
 
 import Link from "next/link";
-import { Sprout, UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { name: "Home", href: "/" },
+  { name: "Recipes", href: "/recipes"},
   { name: "Sweet", href: "/foods/Sweet" },
   { name: "Vegetarian", href: "/foods/Vegetarian" },
   { name: "Meat", href: "/foods/Meat" },
@@ -23,14 +25,14 @@ export function Header() {
             <UtensilsCrossed className="h-7 w-7" />
             <span>NutriSnap</span>
           </Link>
-          <nav className="flex space-x-4">
+          <nav className="hidden md:flex space-x-2 lg:space-x-4">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
-                  pathname === item.href
+                  (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
                     ? "bg-primary text-primary-foreground"
                     : "text-foreground"
                 )}
@@ -39,6 +41,21 @@ export function Header() {
               </Link>
             ))}
           </nav>
+          {/* Basic Mobile Menu (can be improved with a dropdown) */}
+          <div className="md:hidden">
+             <select 
+                onChange={(e) => window.location.href = e.target.value} 
+                value={pathname}
+                className="bg-card border border-input rounded-md p-2 text-sm text-foreground focus:ring-primary"
+                aria-label="Navigation"
+              >
+               {navItems.map((item) => (
+                 <option key={item.name} value={item.href}>
+                   {item.name}
+                 </option>
+               ))}
+             </select>
+          </div>
         </div>
       </div>
     </header>

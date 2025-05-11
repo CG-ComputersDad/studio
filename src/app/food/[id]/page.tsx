@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -9,8 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, PlusCircle, Flame, Beef, Wheat, Droplet } from "lucide-react"; // Droplet for fat
+import { ArrowLeft, PlusCircle, Flame, Beef, Wheat, Droplet, Bookmark } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AddToRecipeDialog } from "@/components/recipe/AddToRecipeDialog"; // Import the new dialog
+import type { FoodItem } from "@/types";
+
 
 interface FoodDetailPageProps {
   params: { id: string };
@@ -20,6 +24,8 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
   const food = getFoodById(params.id);
   const { addItemToPlate } = usePlate();
   const [quantity, setQuantity] = useState(100); // Default to 100g
+  const [isAddToRecipeDialogOpen, setIsAddToRecipeDialogOpen] = useState(false);
+
 
   if (!food) {
     return (
@@ -48,6 +54,7 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
   const nutrition = food.nutritionPer100g;
 
   return (
+    <>
     <div className="space-y-8">
       <Button asChild variant="outline" className="mb-6">
         <Link href="/">
@@ -105,7 +112,7 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
               </div>
               
               <div className="space-y-2 pt-4 border-t">
-                <h3 className="text-lg font-semibold">Add to Plate</h3>
+                <h3 className="text-lg font-semibold">Add to Plate / Recipe</h3>
                 <div className="flex items-center gap-3">
                   <Input
                     type="number"
@@ -118,14 +125,35 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
                   />
                   <span className="text-md text-muted-foreground">grams</span>
                 </div>
-                <Button onClick={handleAdd} size="lg" className="w-full mt-2" disabled={quantity <=0}>
-                  <PlusCircle className="mr-2 h-5 w-5" /> Add to Plate
-                </Button>
+                <div className="flex gap-2 mt-2">
+                  <Button onClick={handleAdd} size="lg" className="flex-1" disabled={quantity <=0}>
+                    <PlusCircle className="mr-2 h-5 w-5" /> Add to Plate
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    onClick={() => setIsAddToRecipeDialogOpen(true)} 
+                    className="flex-1" 
+                    disabled={quantity <=0}
+                    title="Add to Recipe"
+                  >
+                    <Bookmark className="mr-2 h-5 w-5" /> Add to Recipe
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </div>
         </div>
       </Card>
     </div>
+    {isAddToRecipeDialogOpen && food && (
+      <AddToRecipeDialog
+        food={food}
+        quantity={quantity}
+        isOpen={isAddToRecipeDialogOpen}
+        onOpenChange={setIsAddToRecipeDialogOpen}
+      />
+    )}
+    </>
   );
 }
