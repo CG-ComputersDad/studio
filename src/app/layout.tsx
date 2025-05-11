@@ -6,6 +6,7 @@ import "./globals.css";
 import { PlateProvider } from "@/context/PlateContext";
 import { RecipeProvider } from "@/context/RecipeContext";
 import { FoodProvider } from "@/context/FoodContext"; // Import FoodProvider
+import { ThemeProvider } from "@/components/providers/theme-provider"; // Import ThemeProvider
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
@@ -23,22 +24,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en" className={`${GeistSans.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-background text-foreground">
-        <FoodProvider> {/* Add FoodProvider here */}
-          <PlateProvider>
-            <RecipeProvider>
-              <Header />
-              <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
-                {children}
-              </main>
-              <Footer />
-              <PlateButton />
-              <PlateSheet />
-            </RecipeProvider>
-          </PlateProvider>
-        </FoodProvider>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <FoodProvider>
+            <PlateProvider>
+              <RecipeProvider>
+                <Header />
+                <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+                  {children}
+                </main>
+                <Footer />
+                <PlateButton />
+                <PlateSheet />
+              </RecipeProvider>
+            </PlateProvider>
+          </FoodProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

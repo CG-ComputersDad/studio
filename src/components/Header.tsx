@@ -1,10 +1,10 @@
-
 "use client";
 
 import Link from "next/link";
 import { UtensilsCrossed } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -25,36 +25,39 @@ export function Header() {
             <UtensilsCrossed className="h-7 w-7" />
             <span>NutriSnap</span>
           </Link>
-          <nav className="hidden md:flex space-x-2 lg:space-x-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
-                  (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground"
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-          {/* Basic Mobile Menu (can be improved with a dropdown) */}
-          <div className="md:hidden">
-             <select 
-                onChange={(e) => window.location.href = e.target.value} 
-                value={pathname}
-                className="bg-card border border-input rounded-md p-2 text-sm text-foreground focus:ring-primary"
-                aria-label="Navigation"
-              >
-               {navItems.map((item) => (
-                 <option key={item.name} value={item.href}>
-                   {item.name}
-                 </option>
-               ))}
-             </select>
+          <div className="flex items-center gap-2">
+            <nav className="hidden md:flex space-x-2 lg:space-x-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
+                    (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+            {/* Basic Mobile Menu (can be improved with a dropdown) */}
+            <div className="md:hidden">
+              <select 
+                  onChange={(e) => window.location.href = e.target.value} 
+                  value={pathname}
+                  className="bg-card border border-input rounded-md p-2 text-sm text-foreground focus:ring-primary"
+                  aria-label="Navigation"
+                >
+                {navItems.map((item) => (
+                  <option key={item.name} value={item.href}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <ThemeToggle /> 
           </div>
         </div>
       </div>
