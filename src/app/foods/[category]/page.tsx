@@ -1,6 +1,7 @@
 
 "use client"; 
 
+import React from "react"; // Import React for React.use
 import { useFood } from "@/context/FoodContext"; // Import useFood
 import type { Category as CategoryType } from "@/types";
 import { FoodCard } from "@/components/FoodCard";
@@ -16,11 +17,16 @@ interface CategoryPageProps {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function CategoryPage({ params }: CategoryPageProps) {
+  // As per Next.js warning, `params` (the prop) should be unwrapped if it's a Promise.
+  // React.use() will unwrap the promise or return the value if it's not a promise (though it expects a promise or context).
+  // Given the warning "params is now a Promise", we should use React.use().
+  const resolvedParams = React.use(params);
+  const category = resolvedParams.category;
+  
   const { getFoodsByCategory } = useFood(); // Use context
-  const category = params.category;
   const foods = getFoodsByCategory(category); // Fetch foods using context
 
-  if (!category || !["Sweet", "Vegetarian", "Meat"].includes(category)) {
+  if (!category || !["Sweet", "Vegetarian", "Meat"].includes(category as string)) {
     return (
       <div className="text-center py-10">
         <Alert variant="destructive" className="max-w-md mx-auto">
@@ -42,7 +48,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-primary">
-          {capitalize(category)} Foods
+          {capitalize(category as string)} Foods
         </h1>
         <Button asChild variant="outline">
             <Link href="/">
@@ -60,10 +66,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       ) : (
         <div className="text-center py-10">
           <p className="text-xl text-muted-foreground">
-            No foods found in the "{capitalize(category)}" category.
+            No foods found in the "{capitalize(category as string)}" category.
           </p>
         </div>
       )}
     </div>
   );
 }
+
