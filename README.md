@@ -22,6 +22,6 @@ Built on the next.js framework, NutriSnap is fast, simple, and focused on functi
 ## 🚀 Running Locally
 
 ```bash
-git clone https://github.com/yourusername/nutrisnap.git
+git clone https://github.com/CG-ComputersDad/studio
 cd nutrisnap
 # Open index.html in your browser
