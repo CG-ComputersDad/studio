@@ -142,7 +142,3 @@ export const initialFoodDatabase: FoodItem[] = [
     isCustom: false,
   },
 ];
-
-// The functions getFoodById and getFoodsByCategory will now be part of the FoodContext
-// to operate on the combined list of initial and custom foods.
-    

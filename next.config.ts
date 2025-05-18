@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.ibb.co', // Added for the new image URLs
+        hostname: 'i.ibb.co', // Ensure this is present for i.ibb.co images
         port: '',
         pathname: '/**',
       },
