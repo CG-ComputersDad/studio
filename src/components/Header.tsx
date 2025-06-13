@@ -30,13 +30,15 @@ export function Header() {
             <UtensilsCrossed className="h-7 w-7" />
             <span>NutriSnap</span>
           </Link>
-          <div className="flex items-center gap-3 md:gap-4"> {/* Adjusted gap for new section */}
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4"> {/* Adjusted gap */}
             
-            {/* Recently Added Items Section */}
+            {/* Recently Added Items Section - Now visible on all screen sizes */}
             {recentlyAdded && recentlyAdded.length > 0 && (
               <TooltipProvider delayDuration={100}>
-                <div className="hidden md:flex items-center gap-2 border-r border-border pr-3 md:pr-4 mr-1 md:mr-2">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">Recent:</span>
+                {/* Adjusted classes for responsiveness */}
+                <div className="flex items-center gap-1 sm:gap-2 border-r border-border pr-2 sm:pr-3 mr-1 sm:mr-2">
+                  {/* "Recent:" text hidden on xs, shown on sm+ */}
+                  <span className="hidden sm:inline text-xs text-muted-foreground whitespace-nowrap">Recent:</span>
                   {recentlyAdded.map((food) => (
                     <Tooltip key={`recent-${food.id}`}>
                       <TooltipTrigger asChild>
@@ -49,7 +51,7 @@ export function Header() {
                               style={{ objectFit: 'cover' }}
                               className={food.isCustom ? "grayscale" : ""}
                               data-ai-hint={food.dataAiHint}
-                              sizes="(max-width: 768px) 10vw, 32px" // Basic sizes prop
+                              sizes="(max-width: 768px) 10vw, 32px" 
                             />
                           </div>
                         </Link>
@@ -63,13 +65,13 @@ export function Header() {
               </TooltipProvider>
             )}
 
-            <nav className="hidden md:flex space-x-1 lg:space-x-2"> {/* Reduced space for nav items slightly */}
+            <nav className="hidden md:flex space-x-1 lg:space-x-2"> 
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "px-2 py-1.5 lg:px-3 lg:py-2 rounded-md text-xs lg:text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors", // Adjusted padding and text size
+                    "px-2 py-1.5 lg:px-3 lg:py-2 rounded-md text-xs lg:text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors", 
                     (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground"
@@ -80,7 +82,7 @@ export function Header() {
               ))}
             </nav>
             
-            <div className="md:hidden">
+            <div className="md:hidden"> {/* Mobile navigation dropdown */}
               <select 
                   onChange={(e) => window.location.href = e.target.value} 
                   value={pathname}
