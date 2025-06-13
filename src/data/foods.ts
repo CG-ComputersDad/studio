@@ -8,7 +8,7 @@ export const initialFoodDatabase: FoodItem[] = [
     id: "sweet-1",
     name: "Apple",
     category: "Sweet",
-    imageUrl: "https://i.ibb.co/qYxCxGZ/fresh-red-apple-isolated-on-white-background.jpg",
+    imageUrl: "https://i.ibb.co/Bqg8kYh/fresh-red-apple-isolated-on-white-background.jpg", // Direct link for https://ibb.co/TMyZvgYt
     dataAiHint: "apple fruit",
     nutritionPer100g: { calories: 52, protein: 0.3, carbs: 14, fat: 0.2 },
     isCustom: false,
@@ -17,7 +17,7 @@ export const initialFoodDatabase: FoodItem[] = [
     id: "sweet-2",
     name: "Banana",
     category: "Sweet",
-    imageUrl: "https://i.ibb.co/VvZMWbC/ripe-banana-isolated-on-white-background.jpg",
+    imageUrl: "https://i.ibb.co/VvZMWbC/ripe-banana-isolated-on-white-background.jpg", // Direct link for https://ibb.co/5WQfv3Xy
     dataAiHint: "banana fruit",
     nutritionPer100g: { calories: 89, protein: 1.1, carbs: 23, fat: 0.3 },
     isCustom: false,
@@ -26,7 +26,7 @@ export const initialFoodDatabase: FoodItem[] = [
     id: "sweet-3",
     name: "Chocolate Bar (Milk)",
     category: "Sweet",
-    imageUrl: "https://i.ibb.co/FkS0C2g/delicious-chocolate-bar-on-white-background.jpg",
+    imageUrl: "https://i.ibb.co/FkS0C2g/delicious-chocolate-bar-on-white-background.jpg", // Direct link for https://ibb.co/TD5VL5YX
     dataAiHint: "chocolate bar",
     nutritionPer100g: { calories: 535, protein: 8, carbs: 59, fat: 30 },
     isCustom: false,
@@ -35,7 +35,7 @@ export const initialFoodDatabase: FoodItem[] = [
     id: "sweet-4",
     name: "Oatmeal Cookie",
     category: "Sweet",
-    imageUrl: "https://i.ibb.co/L0W4MvX/homemade-oatmeal-cookie-isolated-on-white-background.jpg",
+    imageUrl: "https://i.ibb.co/L0W4MvX/homemade-oatmeal-cookie-isolated-on-white-background.jpg", // Direct link for https://ibb.co/chVPrJLf
     dataAiHint: "oatmeal cookie",
     nutritionPer100g: { calories: 450, protein: 5, carbs: 65, fat: 20 },
     isCustom: false,
@@ -43,8 +43,8 @@ export const initialFoodDatabase: FoodItem[] = [
   {
     id: "sweet-5",
     name: "Orange Juice",
-    category: "Sweet", // Often consumed as a sweet beverage
-    imageUrl: "https://i.ibb.co/vQvjZ3B/glass-of-orange-juice-isolated-on-white-background.jpg",
+    category: "Sweet", 
+    imageUrl: "https://i.ibb.co/vQvjZ3B/glass-of-orange-juice-isolated-on-white-background.jpg", // Direct link for https://ibb.co/0jWcfmg9
     dataAiHint: "orange juice",
     nutritionPer100g: { calories: 45, protein: 0.7, carbs: 10, fat: 0.2 },
     isCustom: false,
