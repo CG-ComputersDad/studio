@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode } from "react";
@@ -8,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 interface PlateState {
   items: PlateItem[];
   isPlateOpen: boolean;
+  recentlyAdded: FoodItem[]; // To store the last 3 added food items
 }
 
 type PlateAction =
@@ -21,6 +23,7 @@ type PlateAction =
 const initialState: PlateState = {
   items: [],
   isPlateOpen: false,
+  recentlyAdded: [], // Initialize as empty
 };
 
 const PlateContext = createContext<
@@ -42,19 +45,23 @@ const plateReducer = (state: PlateState, action: PlateAction): PlateState => {
       const existingItemIndex = state.items.findIndex(
         (item) => item.food.id === action.payload.food.id
       );
+      let updatedItems;
       if (existingItemIndex > -1) {
         // Update quantity if item already exists
-        const updatedItems = [...state.items];
+        updatedItems = [...state.items];
         updatedItems[existingItemIndex].quantityInGrams += action.payload.quantityInGrams;
-        return { ...state, items: updatedItems };
+      } else {
+        // Add new item
+        const newItem: PlateItem = {
+          id: `${action.payload.food.id}_${Date.now()}`, // Unique ID for the plate item
+          food: action.payload.food,
+          quantityInGrams: action.payload.quantityInGrams,
+        };
+        updatedItems = [...state.items, newItem];
       }
-      // Add new item
-      const newItem: PlateItem = {
-        id: `${action.payload.food.id}_${Date.now()}`, // Unique ID for the plate item
-        food: action.payload.food,
-        quantityInGrams: action.payload.quantityInGrams,
-      };
-      return { ...state, items: [...state.items, newItem] };
+      // Update recently added items
+      const newRecentlyAdded = [action.payload.food, ...state.recentlyAdded].slice(0, 3);
+      return { ...state, items: updatedItems, recentlyAdded: newRecentlyAdded };
     }
     case "REMOVE_ITEM":
       return {
@@ -71,6 +78,8 @@ const plateReducer = (state: PlateState, action: PlateAction): PlateState => {
         ),
       };
     case "CLEAR_PLATE":
+      // Clear recently added as well when plate is cleared, or keep them?
+      // For now, let's keep them as they represent recent *additions*, not current plate state.
       return { ...state, items: [] };
     case "TOGGLE_PLATE_OPEN":
       return { ...state, isPlateOpen: !state.isPlateOpen };
@@ -133,7 +142,7 @@ export const PlateProvider = ({ children }: { children: ReactNode }) => {
   return (
     <PlateContext.Provider
       value={{
-        ...state,
+        ...state, // Includes recentlyAdded
         addItemToPlate,
         removeItemFromPlate,
         updateItemQuantity,

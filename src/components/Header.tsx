@@ -1,10 +1,14 @@
+
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { UtensilsCrossed } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePlate } from "@/context/PlateContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -16,6 +20,7 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
+  const { recentlyAdded } = usePlate();
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-40">
@@ -25,14 +30,46 @@ export function Header() {
             <UtensilsCrossed className="h-7 w-7" />
             <span>NutriSnap</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <nav className="hidden md:flex space-x-2 lg:space-x-4">
+          <div className="flex items-center gap-3 md:gap-4"> {/* Adjusted gap for new section */}
+            
+            {/* Recently Added Items Section */}
+            {recentlyAdded && recentlyAdded.length > 0 && (
+              <TooltipProvider delayDuration={100}>
+                <div className="hidden md:flex items-center gap-2 border-r border-border pr-3 md:pr-4 mr-1 md:mr-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Recent:</span>
+                  {recentlyAdded.map((food) => (
+                    <Tooltip key={`recent-${food.id}`}>
+                      <TooltipTrigger asChild>
+                        <Link href={`/food/${food.id}`} className="block" aria-label={`View ${food.name}`}>
+                          <div className="relative h-8 w-8 rounded-full overflow-hidden border-2 border-secondary/50 hover:border-primary transition-all cursor-pointer">
+                            <Image
+                              src={food.imageUrl}
+                              alt={food.name}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                              className={food.isCustom ? "grayscale" : ""}
+                              data-ai-hint={food.dataAiHint}
+                              sizes="(max-width: 768px) 10vw, 32px" // Basic sizes prop
+                            />
+                          </div>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{food.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
+            )}
+
+            <nav className="hidden md:flex space-x-1 lg:space-x-2"> {/* Reduced space for nav items slightly */}
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors",
+                    "px-2 py-1.5 lg:px-3 lg:py-2 rounded-md text-xs lg:text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors", // Adjusted padding and text size
                     (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground"
@@ -42,7 +79,7 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            {/* Basic Mobile Menu (can be improved with a dropdown) */}
+            
             <div className="md:hidden">
               <select 
                   onChange={(e) => window.location.href = e.target.value} 
