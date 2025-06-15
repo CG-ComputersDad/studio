@@ -59,8 +59,15 @@ const plateReducer = (state: PlateState, action: PlateAction): PlateState => {
         };
         updatedItems = [...state.items, newItem];
       }
-      // Update recently added items
-      const newRecentlyAdded = [action.payload.food, ...state.recentlyAdded].slice(0, 3);
+      // Update recently added items:
+      // 1. Prepend the newly added food.
+      // 2. Filter out any previous occurrences of the same food to avoid duplicates.
+      // 3. Slice to keep only the top 3.
+      const newRecentlyAdded = [
+        action.payload.food, 
+        ...state.recentlyAdded.filter(f => f.id !== action.payload.food.id)
+      ].slice(0, 3);
+      
       return { ...state, items: updatedItems, recentlyAdded: newRecentlyAdded };
     }
     case "REMOVE_ITEM":
@@ -164,3 +171,4 @@ export const usePlate = () => {
   }
   return context;
 };
+
