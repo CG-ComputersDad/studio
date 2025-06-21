@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useFood } from "@/context/FoodContext"; // Import useFood
+import { useFood } from "@/context/FoodContext";
 import { usePlate } from "@/context/PlateContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, PlusCircle, Flame, Beef, Wheat, Droplet, Bookmark, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddToRecipeDialog } from "@/components/recipe/AddToRecipeDialog";
-import type { FoodItem } from "@/types";
+import type { FoodItem, FoodNutrition } from "@/types";
+import { FoodCard } from "@/components/FoodCard";
 
 
 interface FoodDetailPageProps {
@@ -21,11 +22,57 @@ interface FoodDetailPageProps {
 }
 
 export default function FoodDetailPage({ params }: FoodDetailPageProps) {
-  const { getFoodById } = useFood(); // Use context to get food
-  const food = getFoodById(params.id); // Fetch food using context
+  const { getFoodById, getAllFoods } = useFood();
+  const food = getFoodById(params.id);
   const { addItemToPlate } = usePlate();
-  const [quantity, setQuantity] = useState(100); // Default to 100g
+  const [quantity, setQuantity] = useState(100);
   const [isAddToRecipeDialogOpen, setIsAddToRecipeDialogOpen] = useState(false);
+
+  const recommendedFoods = useMemo(() => {
+    if (!food) return [];
+
+    const allFoods = getAllFoods();
+
+    // Helper function to get macronutrient percentages
+    const getMacroPercentages = (nutrition: FoodNutrition) => {
+      // Use total from macros to avoid division by zero and get a more accurate ratio
+      const proteinCalories = nutrition.protein * 4;
+      const carbCalories = nutrition.carbs * 4;
+      const fatCalories = nutrition.fat * 9;
+      const totalMacroCalories = proteinCalories + carbCalories + fatCalories;
+
+      if (totalMacroCalories === 0) {
+        return { protein: 0, carbs: 0, fat: 0 };
+      }
+      return {
+        protein: (proteinCalories / totalMacroCalories) * 100,
+        carbs: (carbCalories / totalMacroCalories) * 100,
+        fat: (fatCalories / totalMacroCalories) * 100,
+      };
+    };
+
+    const targetMacros = getMacroPercentages(food.nutritionPer100g);
+
+    const scoredFoods = allFoods
+      .filter(f => f.id !== food.id) // Exclude the current food
+      .map(otherFood => {
+        const otherMacros = getMacroPercentages(otherFood.nutritionPer100g);
+        // Calculate similarity score (lower is better) using Euclidean distance
+        const diff = Math.sqrt(
+          Math.pow(targetMacros.protein - otherMacros.protein, 2) +
+          Math.pow(targetMacros.carbs - otherMacros.carbs, 2) +
+          Math.pow(targetMacros.fat - otherMacros.fat, 2)
+        );
+        return { food: otherFood, score: diff };
+      });
+
+    // Sort by score and take the top 3
+    return scoredFoods
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 3)
+      .map(item => item.food);
+
+  }, [food, getAllFoods]);
 
 
   if (!food) {
@@ -73,7 +120,6 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
               style={{ objectFit: "cover" }}
               data-ai-hint={food.dataAiHint}
               priority
-              // For custom foods with placeholder images, we might want to handle onError or add a specific class
               className={food.isCustom ? "grayscale" : ""}
             />
           </div>
@@ -151,6 +197,18 @@ export default function FoodDetailPage({ params }: FoodDetailPageProps) {
           </div>
         </div>
       </Card>
+      
+      {recommendedFoods.length > 0 && (
+        <section className="space-y-6 pt-8 border-t">
+          <h2 className="text-2xl font-bold text-center text-primary">Recommended For You</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recommendedFoods.map((recFood) => (
+              <FoodCard key={recFood.id} food={recFood} />
+            ))}
+          </div>
+        </section>
+      )}
+
     </div>
     {isAddToRecipeDialogOpen && food && (
       <AddToRecipeDialog
