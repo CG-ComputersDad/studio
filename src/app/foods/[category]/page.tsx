@@ -1,8 +1,8 @@
 
 "use client"; 
 
-import React from "react"; // Import React for React.use
-import { useFood } from "@/context/FoodContext"; // Import useFood
+import React from "react";
+import { useFood } from "@/context/FoodContext";
 import type { Category as CategoryType } from "@/types";
 import { FoodCard } from "@/components/FoodCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -17,11 +17,7 @@ interface CategoryPageProps {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  // As per Next.js warning, `params` (the prop) should be unwrapped if it's a Promise.
-  // React.use() will unwrap the promise or return the value if it's not a promise (though it expects a promise or context).
-  // Given the warning "params is now a Promise", we should use React.use().
-  const resolvedParams = React.use(params);
-  const category = resolvedParams.category;
+  const { category } = params;
   
   const { getFoodsByCategory } = useFood(); // Use context
   const foods = getFoodsByCategory(category); // Fetch foods using context
@@ -73,4 +69,3 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     </div>
   );
 }
-
